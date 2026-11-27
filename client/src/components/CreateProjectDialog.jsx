@@ -1,8 +1,16 @@
 import { useState } from "react";
 import { XIcon } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import toast from  "react-hot-toast"
+import { useAuth} from "@clerk/react";
+import { addProject } from "../features/workspaceSlice";
+import api from "../configs/api.js";
+
 
 const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
+
+    const {getToken} = useAuth()
+    const dispatch = useDispatch()
 
     const { currentWorkspace } = useSelector((state) => state.workspace);
 
@@ -22,6 +30,26 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+         try {
+            if(!formData.team_lead){
+                return toast.error("Please select a team lead")
+            }
+            setIsSubmitting(true)
+
+            const {data} = await api.post("/api/projects", {workspaceId: currentWorkspace.id, ...formData}, {headers : {Authorization : `Bearer ${await getToken()}`}})
+            dispatch(addProject(data.project))
+
+             setIsDialogOpen(false)
+
+         } catch (error){
+            toast.error(error?.response?.data?.message || error.message)
+
+
+         }
+         finally{
+            setIsSubmitting(false)
+         }
+         
         
     };
 
@@ -32,9 +60,9 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
     if (!isDialogOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center text-left z-50">
+        <div className="fixed inset-1 bg-black/20 dark:bg-black/60 backdrop-blur flex items-center justify-center text-left z-30">
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 w-full max-w-lg text-zinc-900 dark:text-zinc-200 relative">
-                <button className="absolute top-3 right-3 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" onClick={() => setIsDialogOpen(false)} >
+                <button className="absolute top-20 right-6 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" onClick={() => setIsDialogOpen(false)} >
                     <XIcon className="size-5" />
                 </button>
 

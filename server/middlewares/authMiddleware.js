@@ -2,9 +2,7 @@
 export const protect = (req, res, next) => {
     try {
         const a = req.auth();
-        console.log("USER", a.userId);
-        console.log("REASON",JSON.stringify(a.debug?.(),null,2));
-        console.log('REQUEST:', req.method, req.originalUrl);
+   
         console.log(
             'AUTHORIZATION HEADER:',
             req.headers.authorization ? 'Present' : 'Missing'
