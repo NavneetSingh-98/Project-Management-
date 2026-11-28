@@ -43,6 +43,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             })
             toast.success(data.message)
             dispatch(addTask(data.task))
+            toast.success("Task added successfully")
 
         } catch (error){
              toast.error(error.response?.data?.message || error.message)
